@@ -1,0 +1,70 @@
+How to Install NodeJS
+
+sudo apt-get install python-software-properties python g++ make
+sudo add-apt-repository ppa:chris-lea/node.js
+sudo apt-get update
+sudo apt-get install nodejs
+
+
+How to Install MongoDB
+
+# switch to super user
+$ sudo su
+# add 10gen GPG key
+$ apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
+# add to source.list for using upstart to manage mongodb
+$ echo "deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen" >> /etc/apt/sources.list
+# install
+$ apt-get update
+$ apt-get install mongodb-10gen
+$ exit
+
+==============================================================
+
+Install Nginx
+
+sudo apt-get install nginx
+sudo service nginx start
+ifconfig eth0 | grep inet | awk '{ print $2 }'
+
+update-rc.d nginx defaults
+
+==============================================================
+
+How To Set Up nginx Virtual Hosts 
+
+sudo mkdir -p /var/www/example.com/public_html
+sudo chown -R www-data:www-data /var/www/example.com/public_html
+
+==============================================================
+
+Enable PHP in Ngnix
+
+sudo apt-get install php5-common php5-cli php5-fpm
+
+===============================================================
+
+Check if memcached is running :
+ps aux | grep memcached
+
+===============================================================
+
+Install C Library
+
+sudo wget -O /etc/apt/sources.list.d/couchbase.list packages.couchbase.com/ubuntu/couchbase-ubuntu1204.list
+wget -O- packages.couchbase.com/ubuntu/couchbase.key | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install libcouchbase2 libcouchbase-dev
+==============================================================
+
+Enable Couchbase in PHP
+
+Install the C Library like before.
+Install Pear with # sudo apt-get install php-pear.
+Install build-essential (.make ..etc) with # sudo apt-get install build-essential.
+Install Couchbase SDK with # sudo pecl install couchbase.
+Update php.ini with extension=couchbase.so.
+Restart Apache # sudo service apache2 restart.
+Restart PHP5-fpm # sudo service php5-fpm restart.
+Restart Nginx # sudo service nginx restart.
+===============================================================
