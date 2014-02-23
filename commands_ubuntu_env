@@ -38,6 +38,14 @@ sudo chown -R www-data:www-data /var/www/example.com/public_html
 
 ==============================================================
 
+Install Composer
+
+curl -sS https://getcomposer.org/installer | php
+
+mv composer.phar /usr/local/bin/composer
+
+==============================================================
+
 Enable PHP in Ngnix
 
 sudo apt-get install php5-common php5-cli php5-fpm
