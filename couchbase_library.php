@@ -37,8 +37,6 @@ class couchbase_server {
         
         $this->connect();
         
-        
-        return true;
     }
 
 
@@ -82,6 +80,9 @@ class couchbase_server {
         }
     }
     
+    /**
+     * Create connection to couchbase server.
+     */
     public function connect() {
         
         try{
@@ -91,8 +92,8 @@ class couchbase_server {
                 $this->_password, 
                 $this->_default_bucket
                 );
-        } catch (couchbase_exception $e) {
-            
+        } catch (couchbase_exception $exc) {
+            echo $exc->getTraceAsString();
         }
         
         
@@ -102,17 +103,36 @@ class couchbase_server {
         return $this->_cb_handle;
     }
     
-    /**
-     * Create connection to couchbase server.
-     */
     
     /**
      * save data in server.
      */
-    
+    public function saveData($key, $data) {
+        
+        try {
+            $this->_cb_handle->set($key, $data);
+            
+        } catch (couchbase_exception $exc) {
+            echo $exc->getTraceAsString();
+        } 
+        
+    }
+
+
     /**
      * get the saved data from server.
      */
+    public function getData($key) {
+        
+        try {
+            
+            return $this->_cb_handle->get($key);
+            
+        } catch (couchbase_exception $exc) {
+            echo $exc->getTraceAsString();
+        } 
+        
+    }
     
     /**
      * delete data from server.
@@ -143,25 +163,97 @@ class couchbase_library {
     
     /**
      * Array of server address and ports.
-     * example $_servers[0] = array( 'server' => '127.0.0.1', 'port' => '8091' );
+     * example $_servers[0] = array( 'server' => '127.0.0.1', 
+     * 'port' => '8091', 'username' => '', 'password' => '', 'bucket' => 'default');
      * @var array 
      */
     private $_servers = array();
     
-    private $_ports;
+    /**
+     *
+     * @var object 
+     */
+    private $_serverObj;
     
-    private $_username;
-    
-    private $_password;
-    
-    private $_default_bucket;
-    
+    /**
+     * 
+     */
+    private $key_salt = 'my secret key salt';
+            
     
     /**
      * Constructor
      */
     
+    public function __construct() {
+        
+        $this->_serverObj = new couchbase_server();
+    }
     
+    /**
+     * 
+     * @param array $server
+     */
+    public function addservers($serverName, Array $serverDetails) {
+        
+         $this->_servers[$serverName] = array(
+             
+             'server' => $server['server'], 
+             'port' => $server['port'], 
+             'username' => $server['username'], 
+             'password' => $server['password'], 
+             'default_bucket' =>  $server['bucket']
+             
+             );
+         
+         
+    }
+    
+    public function connectAll() {
+        
+        foreach ($this->_servers as $server_name => $server_detail) {
+            
+            $this->_serverObj[$server_name] = new couchbase_server($server_detail);
+        }
+    }
+    
+    
+    public function addData($key, $data) {
+        $key = md5($key.$this->key_salt);
+        
+        if(!$this->isJson($data)) {
+            $data = json_encode($data);
+        }
+        
+        $this->getServer()->saveData($key, $data);
+        
+        return true;
+    }
+    
+    public function getData($key) {
+        
+        return $this->getServer()->saveData($key);
+        
+    }
+    
+    public function getServer() {
+        /**
+         * temporary 
+         */
+        return reset($this->_serverObj);
+    }
+    
+    /**
+     * 
+     * @param String $string
+     * @return boolean
+     */
+    public function isJson($string) {
+        
+        json_decode($string);
+        return (json_last_error() == JSON_ERROR_NONE);
+        
+   }
     
 }
 
